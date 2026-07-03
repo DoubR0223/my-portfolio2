@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予安 - 作品集展示</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'playfair': ['"Playfair Display"', 'serif'],
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-playfair {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Animations */
+        @keyframes heroReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(28px);
+                filter: blur(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+        @keyframes heroFadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes heroZoom {
+            0% {
+                transform: scale(1.12);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .hero-anim {
+            opacity: 0;
+            animation-fill-mode: forwards;
+            animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hero-reveal {
+            animation-name: heroReveal;
+            animation-duration: 1.1s;
+        }
+        .hero-fade {
+            animation-name: heroFadeUp;
+            animation-duration: 1s;
+        }
+        .hero-zoom {
+            animation: heroZoom 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-anim,
+            .hero-zoom {
+                animation: none;
+                opacity: 1;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .reveal-layer {
+            mask-size: 100% 100%;
+            -webkit-mask-size: 100% 100%;
+            mask-repeat: no-repeat;
+            -webkit-mask-repeat: no-repeat;
+            mask-position: center;
+            -webkit-mask-position: center;
+        }
+    </style>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+    <!-- ==================== 导航栏 ==================== -->
+    <nav class="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between p-4 sm:p-5" id="navbar">
+        <!-- 左侧 Logo -->
+        <a href="#" class="flex items-center gap-2.5 z-10 no-underline">
+            <svg width="26" height="26" viewBox="0 0 256 256" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"/>
+            </svg>
+            <span class="text-white text-2xl font-playfair italic">予安</span>
+        </a>
+
+        <!-- 中间导航药丸 (桌面端) -->
+        <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-2 py-2 items-center gap-1 z-10"
+        id="nav-pill">
+        <button class="px-4 py-1.5 rounded-full text-sm font-medium text-white bg-white/25 transition-all duration-300 nav-link active"
+        data-section="hero">作品集</button>
+        <button class="px-4 py-1.5 rounded-full text-sm font-medium text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 nav-link"
+        data-section="projects">项目</button>
+        <button class="px-4 py-1.5 rounded-full text-sm font-medium text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 nav-link"
+        data-section="about">关于</button>
+        <button class="px-4 py-1.5 rounded-full text-sm font-medium text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 nav-link"
+        data-section="services">服务</button>
+        <button class="px-4 py-1.5 rounded-full text-sm font-medium text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 nav-link"
+        data-section="contact">联系</button>
+    </div>
+
+    <!-- 右侧注册按钮 (桌面端) -->
+    <button class="hidden md:block bg-white text-gray-900 text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-[1.03] active:scale-95 z-10"
+    onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">
+    合作咨询
+</button>
+
+<!-- 移动端汉堡菜单按钮 -->
+<button class="md:hidden z-10 text-white p-2" id="mobile-menu-btn" aria-label="菜单">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6" id="line1"></line>
+        <line x1="3" y1="12" x2="21" y2="12" id="line2"></line>
+        <line x1="3" y1="18" x2="21" y2="18" id="line3"></line>
+    </svg>
+</button>
+</nav>
+
+<!-- 移动端菜单覆盖层 -->
+<div class="fixed inset-0 bg-black/95 z-[99] hidden flex-col items-center justify-center gap-8"
+id="mobile-menu">
+<button class="absolute top-5 right-5 text-white p-3" id="mobile-close-btn" aria-label="关闭">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+</button>
+<a href="#hero" class="text-white text-2xl font-medium hover:text-[#e8702a] transition-colors mobile-nav-link">作品集</a>
+<a href="#projects" class="text-white text-2xl font-medium hover:text-[#e8702a] transition-colors mobile-nav-link">项目</a>
+<a href="#about" class="text-white text-2xl font-medium hover:text-[#e8702a] transition-colors mobile-nav-link">关于</a>
+<a href="#services" class="text-white text-2xl font-medium hover:text-[#e8702a] transition-colors mobile-nav-link">服务</a>
+<a href="#contact" class="text-white text-2xl font-medium hover:text-[#e8702a] transition-colors mobile-nav-link">联系</a>
+</div>
+
+<!-- ==================== 英雄区域 ==================== -->
+<section class="relative w-full overflow-hidden bg-black" style="height: 100dvh; min-height: 100vh;" id="hero">
+    <!-- 图层 1: 基础图片 (z-10) -->
+    <div class="absolute inset-0 bg-center bg-cover bg-no-repeat z-10 hero-zoom"
+    style="background-image: url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260609_195923_b0ba8ace-1d1d-4f2c-9a28-1ab84b330680.png&w=1280&q=85');"
+id="base-image-layer">
+</div>
+
+<!-- 图层 2: 揭示层 (z-30) - 聚光灯效果 -->
+<div class="absolute inset-0 bg-center bg-cover bg-no-repeat z-30 pointer-events-none reveal-layer"
+style="background-image: url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260609_201152_bba90a12-bf12-459f-91f0-51f237dbaf3b.png&w=1280&q=85');"
+id="reveal-layer">
+</div>
+
+<!-- 隐藏的 Canvas 用于生成遮罩 -->
+<canvas id="spotlight-canvas" class="absolute inset-0 pointer-events-none" style="display:none;"></canvas>
+
+<!-- 图层 3: 标题 (z-50) -->
+<div class="absolute top-[14%] left-0 right-0 flex flex-col items-center text-center px-5 pointer-events-none z-50">
+    <h1 class="text-white leading-[0.95]">
+        <span class="block font-playfair italic font-normal text-5xl sm:text-7xl md:text-8xl hero-anim hero-reveal"
+        style="letter-spacing: -0.05em; animation-delay: 0.25s;">层叠之间</span>
+        <span class="block font-normal text-5xl sm:text-7xl md:text-8xl -mt-1 hero-anim hero-reveal"
+        style="letter-spacing: -0.08em; animation-delay: 0.42s;">藏着时光</span>
+    </h1>
+</div>
+
+<!-- 左下角描述 (z-50) -->
+<div class="hidden sm:block absolute bottom-14 left-10 md:left-14 max-w-[260px] z-50 hero-anim hero-fade"
+style="animation-delay: 0.7s;">
+<p class="text-sm text-white/80 leading-relaxed">
+    每一层沉淀都记录着星球的篇章，从远古海床到飘散的火山灰，历经数百万年在脚下层层堆叠。
+</p>
+</div>
+
+<!-- 右下角按钮区 (z-50) -->
+<div class="absolute bottom-10 sm:bottom-24 left-5 right-5 sm:left-auto sm:right-10 md:right-14 max-w-full sm:max-w-[260px] flex flex-col items-start gap-4 sm:gap-5 z-50 hero-anim hero-fade"
+style="animation-delay: 0.85s;">
+<p class="text-xs sm:text-sm text-white/80 leading-relaxed">
+    我们的交互式地图让您能够剥开地壳，追溯岩石、化石与深邃时光如何共同塑造您脚下的土地。
+</p>
+<button class="bg-[#e8702a] hover:bg-[#d2611f] text-white text-sm font-medium px-7 py-3 rounded-full transition-all hover:scale-[1.03] active:scale-95 hover:shadow-lg hover:shadow-[#e8702a]/30"
+onclick="document.getElementById('projects').scrollIntoView({behavior:'smooth'})">
+探索作品
+</button>
+</div>
+</section>
+
+<!-- ==================== 项目展示区 ==================== -->
+<section class="relative bg-[#0a0a0a] py-24 sm:py-32 px-5 sm:px-10 md:px-14" id="projects">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-16 sm:mb-20">
+            <span class="text-[#e8702a] text-sm font-medium tracking-widest uppercase">精选作品</span>
+            <h2 class="text-white text-4xl sm:text-5xl md:text-6xl font-playfair italic mt-3 leading-tight"
+            style="letter-spacing: -0.03em;">
+            近期项目
+        </h2>
+        <p class="text-white/60 text-base sm:text-lg mt-4 max-w-xl leading-relaxed">
+            每一个项目都是一次独特的探索，融合创意与技术，打造令人难忘的数字体验。
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <!-- 项目卡片 1 -->
+        <div class="group relative bg-[#141414] rounded-2xl overflow-hidden border border-white/5 hover:border-white/15 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#e8702a]/5 cursor-pointer">
+            <div class="aspect-[4/3] overflow-hidden">
+                <!-- 修改此处背景图片或渐变 -->
+               <div class="w-full h-full bg-cover bg-center" style="background-image: url(https://i.postimg.cc/yY76WHyS/03xiu.png);"></div>
+            </div>
+            <div class="p-6">
+                <span class="text-[#e8702a] text-xs font-medium tracking-wider uppercase">C4D渲染</span>
+                <h3 class="text-white text-xl font-semibold mt-2 group-hover:text-[#e8702a] transition-colors">产品渲染师</h3>
+                <p class="text-white/50 text-sm mt-2 leading-relaxed">为产品打造独家渲染图。</p>
+            </div>
+        </div>
+
+        <!-- 项目卡片 2 -->
+        <div class="group relative bg-[#141414] rounded-2xl overflow-hidden border border-white/5 hover:border-white/15 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#e8702a]/5 cursor-pointer">
+            <div class="aspect-[4/3] overflow-hidden">
+                <div class="w-full h-full bg-cover bg-center" style="background-image: url(https://i.postimg.cc/d16Fm38R/AI-tu-xiang-13-50.png);"></div>
+            </div>
+            <div class="p-6">
+                <span class="text-[#e8702a] text-xs font-medium tracking-wider uppercase">AIGC产品</span>
+                <h3 class="text-white text-xl font-semibold mt-2 group-hover:text-[#e8702a] transition-colors">AIGC产品设计师</h3>
+                <p class="text-white/50 text-sm mt-2 leading-relaxed">通过AIGC完成完整的全套产品设计。</p>
+            </div>
+        </div>
+
+        <!-- 项目卡片 3 -->
+        <div class="group relative bg-[#141414] rounded-2xl overflow-hidden border border-white/5 hover:border-white/15 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#e8702a]/5 cursor-pointer">
+            <div class="aspect-[4/3] overflow-hidden">
+                <div class="w-full h-full bg-cover bg-center" style="background-image: url(https://i.postimg.cc/PrrxcsJd/tu-yi-drowm-ai-1773902964298-png-shi-wo-de-shou-chi-xiang-ji-chan-pin-bao-chi-chan-pin-xi-jie-bu-bian-bang-wo-sheng-cheng-gao-zhi-liang-de-shang-ye-ji-chang-jing-zhu-ti-yu-gou-tu-hua-mian-de-he-xin-shi-yi-zhi-shou-jin-wo-da-jiang-xiang-ji-zheng-chang-shi-cong-shui-mian-yi-shang-shui-mian-yu-zhou-wei-liu-dong-de.jpg);"></div>
+            </div>
+            <div class="p-6">
+                <span class="text-[#e8702a] text-xs font-medium tracking-wider uppercase">AIGC渲染</span>
+                <h3 class="text-white text-xl font-semibold mt-2 group-hover:text-[#e8702a] transition-colors">AIGC渲染师 </h3>
+                <p class="text-white/50 text-sm mt-2 leading-relaxed">通过AIGC完成全套品牌渲染图设计。</p>
+            </div>
+        </div>
+
+        <!-- 项目卡片 4 -->
+        <div class="group relative bg-[#141414] rounded-2xl overflow-hidden border border-white/5 hover:border-white/15 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#e8702a]/5 cursor-pointer">
+            <div class="aspect-[4/3] overflow-hidden">
+                <div class="w-full h-full bg-cover bg-center" style="background-image: url(https://i.postimg.cc/j57NDVPK/2.png);"></div>
+            </div>
+            <div class="p-6">
+                <span class="text-[#e8702a] text-xs font-medium tracking-wider uppercase">插画 & 动画</span>
+                <h3 class="text-white text-xl font-semibold mt-2 group-hover:text-[#e8702a] transition-colors">AIGC漫剧</h3>
+                <p class="text-white/50 text-sm mt-2 leading-relaxed">漫剧场景画面设计。</p>
+            </div>
+        </div>
+
+        <!-- 项目卡片 5 -->
+        <div class="group relative bg-[#141414] rounded-2xl overflow-hidden border border-white/5 hover:border-white/15 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#e8702a]/5 cursor-pointer">
+            <div class="aspect-[4/3] overflow-hidden">
+                <div class="w-full h-full bg-cover bg-center" style="background-image: url(https://i.postimg.cc/P5H05TGR/drowm-ai-1769777421524.jpg);"></div>
+            </div>
+            <div class="p-6">
+                <span class="text-[#e8702a] text-xs font-medium tracking-wider uppercase">动画</span>
+                <h3 class="text-white text-xl font-semibold mt-2 group-hover:text-[#e8702a] transition-colors">产品动画设计</h3>
+                <p class="text-white/50 text-sm mt-2 leading-relaxed">为产品打造独家动画。</p>
+            </div>
+        </div>
+
+        <!-- 项目卡片 6 -->
+        <div class="group relative bg-[#141414] rounded-2xl overflow-hidden border border-white/5 hover:border-white/15 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#e8702a]/5 cursor-pointer">
+            <div class="aspect-[4/3] overflow-hidden">
+                <div class="w-full h-full bg-cover bg-center" style="background-image: url(https://i.postimg.cc/mD3HRY7M/qu-diao-hong-se-kuang-xuan-bu-fen-yi-ji-ren-wu-shu-ben-shang-de-wen-zi-2K-202606241401.jpg);"></div>
+            </div>
+            <div class="p-6">
+                <span class="text-[#e8702a] text-xs font-medium tracking-wider uppercase">IP设计</span>
+                <h3 class="text-white text-xl font-semibold mt-2 group-hover:text-[#e8702a] transition-colors">IP文创周边设计</h3>
+                <p class="text-white/50 text-sm mt-2 leading-relaxed">品牌独家IP设计。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-14">
+        <button class="border border-white/20 text-white text-sm font-medium px-8 py-3.5 rounded-full hover:bg-white/10 hover:border-white/40 transition-all duration-300 hover:scale-[1.02] active:scale-95">
+            查看全部项目 →
+        </button>
+    </div>
+</div>
+</section>
+
+<!-- ==================== 关于我 ==================== -->
+<section class="relative bg-[#0f0f0f] py-24 sm:py-32 px-5 sm:px-10 md:px-14" id="about">
+    <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div class="relative">
+                <!-- 此处可替换为您的照片 -->
+                   <div class="aspect-[3/4] rounded-3xl overflow-hidden border border-white/5">
+        <img src="https://i.postimg.cc/yY76WHyS/03xiu.png" alt="个人照片" class="w-full h-full object-cover">
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div class="text-center p-8">
+                            <div class="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-[#e8702a]/30 to-[#e8702a]/5 flex items-center justify-center mb-6">
+                                <svg width="48" height="48" viewBox="0 0 256 256" fill="#e8702a" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-6 -right-6 w-48 h-48 bg-[#e8702a]/8 rounded-full blur-3xl pointer-events-none"></div>
+            </div>
+
+            <div>
+                <span class="text-[#e8702a] text-sm font-medium tracking-widest uppercase">关于我</span>
+                <h2 class="text-white text-4xl sm:text-5xl md:text-6xl font-playfair italic mt-3 leading-tight"
+                style="letter-spacing: -0.03em;">
+                在层叠之间<br>寻找答案
+            </h2>
+            <p class="text-white/60 text-base leading-relaxed mt-6">
+                我是一名专注于产品设计的创意工作者。像地质学家解读岩层一样，我热衷于层层深入，挖掘每个项目背后的故事与本质。
+            </p>
+            <p class="text-white/50 text-base leading-relaxed mt-4">
+                从产品设计到交互设计，从视觉系统到动效开发——我相信最好的作品诞生于跨学科的碰撞与融合。
+            </p>
+
+            <div class="flex flex-wrap gap-3 mt-8">
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/80 text-sm hover:bg-white/10 hover:border-[#e8702a]/30 hover:text-[#e8702a] transition-all cursor-default">品牌设计</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/80 text-sm hover:bg-white/10 hover:border-[#e8702a]/30 hover:text-[#e8702a] transition-all cursor-default">UI/UX</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/80 text-sm hover:bg-white/10 hover:border-[#e8702a]/30 hover:text-[#e8702a] transition-all cursor-default">动效设计</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/80 text-sm hover:bg-white/10 hover:border-[#e8702a]/30 hover:text-[#e8702a] transition-all cursor-default">3D 渲染</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/80 text-sm hover:bg-white/10 hover:border-[#e8702a]/30 hover:text-[#e8702a] transition-all cursor-default">前端开发</span>
+                <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/80 text-sm hover:bg-white/10 hover:border-[#e8702a]/30 hover:text-[#e8702a] transition-all cursor-default">创意策略</span>
+            </div>
+
+            <button class="mt-10 bg-[#e8702a] hover:bg-[#d2611f] text-white text-sm font-medium px-8 py-3.5 rounded-full transition-all hover:scale-[1.03] active:scale-95 hover:shadow-lg hover:shadow-[#e8702a]/30"
+            onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">
+            了解更多 →
+        </button>
+    </div>
+</div>
+</div>
+</section>
+
+<!-- ==================== 服务区 ==================== -->
+<section class="relative bg-[#0a0a0a] py-24 sm:py-32 px-5 sm:px-10 md:px-14" id="services">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-16 sm:mb-20">
+            <span class="text-[#e8702a] text-sm font-medium tracking-widest uppercase">服务范围</span>
+            <h2 class="text-white text-4xl sm:text-5xl md:text-6xl font-playfair italic mt-3 leading-tight"
+            style="letter-spacing: -0.03em;">
+            我能做什么
+        </h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-[#141414] border border-white/5 rounded-2xl p-8 hover:border-[#e8702a]/20 transition-all duration-500 hover:-translate-y-1 group">
+            <div class="w-12 h-12 rounded-xl bg-[#e8702a]/10 flex items-center justify-center mb-5 group-hover:bg-[#e8702a]/20 transition-colors">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e8702a" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+            </div>
+            <h3 class="text-white text-lg font-semibold">品牌识别</h3>
+            <p class="text-white/50 text-sm mt-3 leading-relaxed">从 Logo 到完整视觉系统，构建令人难忘的品牌形象。</p>
+        </div>
+
+        <div class="bg-[#141414] border border-white/5 rounded-2xl p-8 hover:border-[#e8702a]/20 transition-all duration-500 hover:-translate-y-1 group">
+            <div class="w-12 h-12 rounded-xl bg-[#e8702a]/10 flex items-center justify-center mb-5 group-hover:bg-[#e8702a]/20 transition-colors">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e8702a" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3 class="text-white text-lg font-semibold">交互设计</h3>
+            <p class="text-white/50 text-sm mt-3 leading-relaxed">以用户为中心的界面设计，让每一次交互都流畅自然。</p>
+        </div>
+
+        <div class="bg-[#141414] border border-white/5 rounded-2xl p-8 hover:border-[#e8702a]/20 transition-all duration-500 hover:-translate-y-1 group">
+            <div class="w-12 h-12 rounded-xl bg-[#e8702a]/10 flex items-center justify-center mb-5 group-hover:bg-[#e8702a]/20 transition-colors">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e8702a" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <h3 class="text-white text-lg font-semibold">动效开发</h3>
+            <p class="text-white/50 text-sm mt-3 leading-relaxed">精致的微交互与过渡动画，赋予数字产品生命力。</p>
+        </div>
+
+        <div class="bg-[#141414] border border-white/5 rounded-2xl p-8 hover:border-[#e8702a]/20 transition-all duration-500 hover:-translate-y-1 group">
+            <div class="w-12 h-12 rounded-xl bg-[#e8702a]/10 flex items-center justify-center mb-5 group-hover:bg-[#e8702a]/20 transition-colors">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e8702a" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </div>
+            <h3 class="text-white text-lg font-semibold">3D 可视化</h3>
+            <p class="text-white/50 text-sm mt-3 leading-relaxed">将复杂数据转化为直观的3D场景与交互体验。</p>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ==================== 联系区 ==================== -->
+<section class="relative bg-[#0f0f0f] py-24 sm:py-32 px-5 sm:px-10 md:px-14" id="contact">
+    <div class="max-w-4xl mx-auto text-center">
+        <span class="text-[#e8702a] text-sm font-medium tracking-widest uppercase">联系方式</span>
+        <h2 class="text-white text-4xl sm:text-5xl md:text-6xl font-playfair italic mt-3 leading-tight"
+        style="letter-spacing: -0.03em;">
+        开始一段对话
+    </h2>
+    <p class="text-white/60 text-base sm:text-lg mt-5 max-w-xl mx-auto leading-relaxed">
+        无论您有一个具体的项目想法，还是只想打个招呼——我都很乐意倾听。
+    </p>
+
+    <div class="mt-12 max-w-2xl mx-auto text-left">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+                <label class="text-white/70 text-sm mb-2 block">姓名</label>
+                <input type="text" placeholder="您的姓名" class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-white/30 focus:outline-none focus:border-[#e8702a]/50 transition-colors text-sm">
+            </div>
+            <div>
+                <label class="text-white/70 text-sm mb-2 block">邮箱</label>
+                <input type="email" placeholder="your@email.com" class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-white/30 focus:outline-none focus:border-[#e8702a]/50 transition-colors text-sm">
+            </div>
+        </div>
+        <div class="mt-5">
+            <label class="text-white/70 text-sm mb-2 block">消息</label>
+            <textarea rows="5" placeholder="描述您的项目想法..." class="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-white/30 focus:outline-none focus:border-[#e8702a]/50 transition-colors text-sm resize-none"></textarea>
+        </div>
+        <button class="mt-6 w-full sm:w-auto bg-[#e8702a] hover:bg-[#d2611f] text-white text-sm font-medium px-10 py-3.5 rounded-full transition-all hover:scale-[1.03] active:scale-95 hover:shadow-lg hover:shadow-[#e8702a]/30">
+            发送消息
+        </button>
+    </div>
+
+    <div class="flex justify-center gap-6 mt-16">
+        <a href="#" class="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#e8702a]/20 hover:border-[#e8702a]/30 transition-all group" aria-label="Dribbble">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" class="group-hover:stroke-[#e8702a] transition-colors"><circle cx="12" cy="12" r="10"/><path d="M19.13 5.09C15.22 9.14 10 10.44 2.25 10.94"/><path d="M21.75 12.84c-6.62-1.41-12.14 1-16.38 6.32"/><path d="M8.56 2.75c4.37 6 6 9.42 8 17.72"/></svg>
+        </a>
+        <a href="#" class="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#e8702a]/20 hover:border-[#e8702a]/30 transition-all group" aria-label="Behance">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" class="group-hover:stroke-[#e8702a] transition-colors"><rect x="2" y="7" width="14" height="10" rx="2"/><line x1="8" y1="7" x2="8" y2="17"/><line x1="2" y1="12" x2="16" y2="12"/></svg>
+        </a>
+        <a href="#" class="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#e8702a]/20 hover:border-[#e8702a]/30 transition-all group" aria-label="Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" class="group-hover:stroke-[#e8702a] transition-colors"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
+        </a>
+        <a href="#" class="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#e8702a]/20 hover:border-[#e8702a]/30 transition-all group" aria-label="LinkedIn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" class="group-hover:stroke-[#e8702a] transition-colors"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="8" y1="5" x2="8" y2="19"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </a>
+    </div>
+</div>
+</section>
+
+<!-- ==================== 页脚 ==================== -->
+<footer class="bg-[#0a0a0a] border-t border-white/5 py-10 px-5 sm:px-10 md:px-14">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+        <a href="#" class="flex items-center gap-2.5 no-underline">
+            <svg width="22" height="22" viewBox="0 0 256 256" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"/>
+            </svg>
+            <span class="text-white text-xl font-playfair italic">予安</span>
+        </a>
+        <p class="text-white/40 text-sm">© 2026 予安. 保留所有权利。</p>
+        <div class="flex gap-6">
+            <a href="#" class="text-white/40 text-sm hover:text-white/70 transition-colors no-underline">隐私政策</a>
+            <a href="#" class="text-white/40 text-sm hover:text-white/70 transition-colors no-underline">使用条款</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    (function() {
+        const SPOTLIGHT_R = 260;
+
+        const heroSection = document.getElementById('hero');
+        const revealLayer = document.getElementById('reveal-layer');
+        const spotlightCanvas = document.getElementById('spotlight-canvas');
+        const ctx = spotlightCanvas.getContext('2d');
+
+        let mouse = { x: -999, y: -999 };
+        let smooth = { x: -999, y: -999 };
+        let rafId = null;
+        let isHeroVisible = true;
+
+        function resizeCanvas() {
+            spotlightCanvas.width = window.innerWidth;
+            spotlightCanvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function onMouseMove(e) {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        }
+
+        function checkHeroVisibility() {
+            const rect = heroSection.getBoundingClientRect();
+            isHeroVisible = rect.bottom > 0 && rect.top < window.innerHeight;
+        }
+
+        function updateSpotlight() {
+            smooth.x += (mouse.x - smooth.x) * 0.1;
+            smooth.y += (mouse.y - smooth.y) * 0.1;
+
+            checkHeroVisibility();
+
+            if (isHeroVisible && spotlightCanvas.width > 0 && spotlightCanvas.height > 0) {
+                ctx.clearRect(0, 0, spotlightCanvas.width, spotlightCanvas.height);
+
+                const grad = ctx.createRadialGradient(
+                    smooth.x, smooth.y, 0,
+                    smooth.x, smooth.y, SPOTLIGHT_R
+                );
+                grad.addColorStop(0, 'rgba(255,255,255,1)');
+                grad.addColorStop(0.4, 'rgba(255,255,255,1)');
+                grad.addColorStop(0.6, 'rgba(255,255,255,0.75)');
+                grad.addColorStop(0.75, 'rgba(255,255,255,0.4)');
+                grad.addColorStop(0.88, 'rgba(255,255,255,0.12)');
+                grad.addColorStop(1, 'rgba(255,255,255,0)');
+
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, spotlightCanvas.width, spotlightCanvas.height);
+
+                try {
+                    const dataUrl = spotlightCanvas.toDataURL();
+                    revealLayer.style.maskImage = `url(${dataUrl})`;
+                    revealLayer.style.webkitMaskImage = `url(${dataUrl})`;
+                } catch (e) {}
+            } else if (!isHeroVisible) {
+                revealLayer.style.maskImage = 'none';
+                revealLayer.style.webkitMaskImage = 'none';
+            }
+
+            rafId = requestAnimationFrame(updateSpotlight);
+        }
+
+        function startSpotlight() {
+            document.addEventListener('mousemove', onMouseMove, { passive: true });
+            window.addEventListener('scroll', checkHeroVisibility, { passive: true });
+            checkHeroVisibility();
+            rafId = requestAnimationFrame(updateSpotlight);
+        }
+
+        function stopSpotlight() {
+            document.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('scroll', checkHeroVisibility);
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+            revealLayer.style.maskImage = 'none';
+            revealLayer.style.webkitMaskImage = 'none';
+        }
+
+        startSpotlight();
+
+        // 移动端菜单
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileCloseBtn = document.getElementById('mobile-close-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+        function openMobileMenu() {
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        mobileMenuBtn.addEventListener('click', openMobileMenu);
+        mobileCloseBtn.addEventListener('click', closeMobileMenu);
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+
+        // 导航高亮
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section[id]');
+
+        function updateActiveNavLink() {
+            let currentSection = 'hero';
+            const scrollPos = window.scrollY + 120;
+
+            sections.forEach(section => {
+                const top = section.offsetTop;
+                const height = section.offsetHeight;
+                if (scrollPos >= top && scrollPos < top + height) {
+                    currentSection = section.id;
+                }
+            });
+
+            navLinks.forEach(link => {
+                if (link.dataset.section === currentSection) {
+                    link.classList.add('text-white', 'bg-white/25');
+                    link.classList.remove('text-white/80');
+                } else {
+                    link.classList.remove('text-white', 'bg-white/25');
+                    link.classList.add('text-white/80');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveNavLink, { passive: true });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const targetId = link.dataset.section;
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        window.addEventListener('beforeunload', stopSpotlight);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+            } else {
+                if (!rafId) {
+                    checkHeroVisibility();
+                    rafId = requestAnimationFrame(updateSpotlight);
+                }
+            }
+        });
+
+        console.log('🪨 予安 作品集已就绪');
+    })();
+</script>
+</body>
+</html>
